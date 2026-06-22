@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>su.X01</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <button id="menu-btn">☰</button>
+
+    <h1 class="logo-title">x.AI</h1>
+
+    <div id="chat-box"></div>
+
+    <div class="input-container">
+
+        <input
+            type="text"
+            id="message"
+            placeholder="Let's Deep Dive with x.AI"
+        >
+
+        <button id="send-btn">↑</button>
+
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage() {
+
+    let input = document.getElementById("message");
+    let message = input.value.trim();
+
+    if(message === "") return;
+
+    let chatBox = document.getElementById("chat-box");
+
+    chatBox.innerHTML += `
+        <div class="user-message">
+            ${message}
+        </div>
+    `;
+
+    input.value = "";
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+
+        const response = await fetch("/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
+        const data = await response.json();
+
+        chatBox.innerHTML += `
+            <div class="bot-message">
+                ${data.reply}
+            </div>
+        `;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch(error) {
+
+        chatBox.innerHTML += `
+            <div class="bot-message">
+                Error connecting to AI.
+            </div>
+        `;
+
+    }
+
+}
+
+document.getElementById("send-btn")
+.addEventListener("click", sendMessage);
+
+document.getElementById("message")
+.addEventListener("keydown", function(e){
+
+    if(e.key === "Enter"){
+        sendMessage();
+    }
+
+});
+
+document.getElementById("menu-btn")
+.addEventListener("click", function(){
+
+    alert("Recent Chats");
+
+});
+
+</script>
+
+</body>
+</html>
